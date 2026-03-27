@@ -144,7 +144,7 @@ def run_sim():
     network.tick()
     for i in range(osd_count):
       osds[i].execute_ops(osd_process_per_tick)
-    start = random.randint(0, osd_count-1) #needed to have equal processing for each osd
+    start = random.randint(0, client_count-1) #needed to have equal processing for each osd
                                            #its not magic, just difficult to explain
 
     for j in range(client_max_per_tick):
