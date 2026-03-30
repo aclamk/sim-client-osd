@@ -162,10 +162,10 @@ def run_sim():
     for j in range(client_max_per_tick):
       added_some=False
       for i in range(client_count):
-        osd = (i + start) % client_count
-        added_some = added_some or clients[osd].generate_ops(1)
-      #if not added_some:
-      #  break
+        c = (i + start) % client_count
+        added_some = clients[c].generate_ops(1) or added_some
+      if not added_some:
+        break
     time_now = time_now + time_tick
     if ((time_now % 10000) == 0):
       print_diff_state()
