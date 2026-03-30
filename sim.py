@@ -72,17 +72,14 @@ class Network: #simulates all delays of transmission
     while (len(self.requests) > 0 and self.requests[0][0] <= time_now):
       req = self.requests.pop(0)
       osd=req[2]
-      #print("r="+str(req[2]))
       osds[req[2]].request_op(req[1], req[3])
 
   def process_responses(self):
-    #print("sr="+str(len(self.responses)))
     while (len(self.responses) > 0 and self.responses[0][0] <= time_now):
       rsp = self.responses.pop(0)
       clients[rsp[1]].got_response(rsp[2])
   
   def tick(self): #do all the data-moving magic
-    #print("time="+str(time_now))
     self.process_requests()
     self.process_responses()
 
@@ -120,8 +117,6 @@ def init():
   pre_init_clients()
 
 
-
-
 def print_state():
 
   s=""
@@ -143,6 +138,12 @@ def print_diff_state():
   s=s+" | "
   for i in range(osd_count):
     s=s+str(len(osds[i].queue))+" "
+
+  s=s+" | "
+  for i in range(client_count):
+    first = (clients[i].queue.items()[0])[0]
+    s=s+str(clients[i].last_op-first)+" "
+  
   print(s)
 
 
@@ -152,7 +153,7 @@ def run_sim():
   global client_max_per_tick
   global osd_process_per_tick
   global osd_count
-  while (time_now < 1000000):
+  while (time_now < 100000):
     network.tick()
     for i in range(osd_count):
       osds[i].execute_ops(osd_process_per_tick)
@@ -167,12 +168,12 @@ def run_sim():
       if not added_some:
         break
     time_now = time_now + time_tick
-    if ((time_now % 10000) == 0):
+    if ((time_now % 1000) == 0):
       print_diff_state()
   
 pg_mapping={}
 
-time_tick=10
+time_tick=1
 time_now=0
 network = Network()
 clients=[]
@@ -268,14 +269,14 @@ network_delay=20
 
 #reached 0 at some points in #19
 client_qdepth=256
-client_max_per_tick=8
-osd_process_per_tick=15
-network_delay=20
+client_max_per_tick=40
+osd_process_per_tick=20
+network_delay=5
 
 
 
 
 
-random.seed(0)
+random.seed(2)
 init()
 run_sim()
