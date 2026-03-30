@@ -1,7 +1,7 @@
 #!/bin/python
 import math
 import random
-
+from collections import OrderedDict
 
 
 class Client:
@@ -10,7 +10,7 @@ class Client:
   def __init__(self, id):
     self.last_op=0
     self.saved_op=0
-    self.queue=dict()
+    self.queue=OrderedDict()
     self.me_id=id;
     self.pg_count = 128 #just select something
     self.pg_list=[]
@@ -26,9 +26,21 @@ class Client:
 
   def generate_ops(self, max):
     result=False
-    while (max > 0 and len(self.queue) < client_qdepth):
+    #the oldest op determines current level of the queue
+    first=0
+    if len(self.queue) > 0:
+      first = (self.queue.items()[0])[0]
+    else:
+      first = self.last_op
+    while (max > 0 and self.last_op - first < client_qdepth):
       self.generate_op()
+      max = max - 1
       result=True
+    #ops independent, if an op is completed, issue new one
+    #while ((max > 0) and (len(self.queue) < client_qdepth)):
+    #  self.generate_op()
+    #  result=True
+    #  max=max-1
     return result
     
   def send_request(self, osd, op_id):
